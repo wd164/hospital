@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hospital.patient.mapper.HospitalPatientMapper">
+    
+    <resultMap type="HospitalPatient" id="HospitalPatientResult">
+        <result property="patientId"    column="patient_id"    />
+        <result property="patientName"    column="patient_name"    />
+        <result property="patientGender"    column="patient_gender"    />
+        <result property="patientAge"    column="patient_age"    />
+        <result property="patientIdcard"    column="patient_idcard"    />
+        <result property="patientPhone"    column="patient_phone"    />
+        <result property="patientAddress"    column="patient_address"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectHospitalPatientVo">
+        select patient_id, patient_name, patient_gender, patient_age, patient_idcard, patient_phone, patient_address, status, create_by, create_time, update_by, update_time, remark from sys_hospital_patient
+    </sql>
+
+    <select id="selectHospitalPatientList" parameterType="HospitalPatient" resultMap="HospitalPatientResult">
+        <include refid="selectHospitalPatientVo"/>
+        <where>  
+            <if test="patientName != null  and patientName != ''"> and patient_name like concat('%', #{patientName}, '%')</if>
+            <if test="patientGender != null  and patientGender != ''"> and patient_gender = #{patientGender}</if>
+            <if test="params.beginPatientAge != null and params.beginPatientAge != '' and params.endPatientAge != null and params.endPatientAge != ''"> and patient_age between #{params.beginPatientAge} and #{params.endPatientAge}</if>
+            <if test="patientIdcard != null  and patientIdcard != ''"> and patient_idcard = #{patientIdcard}</if>
+            <if test="patientPhone != null  and patientPhone != ''"> and patient_phone = #{patientPhone}</if>
+            <if test="patientAddress != null  and patientAddress != ''"> and patient_address = #{patientAddress}</if>
+        </where>
+    </select>
+    
+    <select id="selectHospitalPatientByPatientId" parameterType="Long" resultMap="HospitalPatientResult">
+        <include refid="selectHospitalPatientVo"/>
+        where patient_id = #{patientId}
+    </select>
+
+    <insert id="insertHospitalPatient" parameterType="HospitalPatient" useGeneratedKeys="true" keyProperty="patientId">
+        insert into sys_hospital_patient
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="patientName != null and patientName != ''">patient_name,</if>
+            <if test="patientGender != null and patientGender != ''">patient_gender,</if>
+            <if test="patientAge != null">patient_age,</if>
+            <if test="patientIdcard != null and patientIdcard != ''">patient_idcard,</if>
+            <if test="patientPhone != null and patientPhone != ''">patient_phone,</if>
+            <if test="patientAddress != null">patient_address,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="patientName != null and patientName != ''">#{patientName},</if>
+            <if test="patientGender != null and patientGender != ''">#{patientGender},</if>
+            <if test="patientAge != null">#{patientAge},</if>
+            <if test="patientIdcard != null and patientIdcard != ''">#{patientIdcard},</if>
+            <if test="patientPhone != null and patientPhone != ''">#{patientPhone},</if>
+            <if test="patientAddress != null">#{patientAddress},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateHospitalPatient" parameterType="HospitalPatient">
+        update sys_hospital_patient
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="patientName != null and patientName != ''">patient_name = #{patientName},</if>
+            <if test="patientGender != null and patientGender != ''">patient_gender = #{patientGender},</if>
+            <if test="patientAge != null">patient_age = #{patientAge},</if>
+            <if test="patientIdcard != null and patientIdcard != ''">patient_idcard = #{patientIdcard},</if>
+            <if test="patientPhone != null and patientPhone != ''">patient_phone = #{patientPhone},</if>
+            <if test="patientAddress != null">patient_address = #{patientAddress},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where patient_id = #{patientId}
+    </update>
+
+    <delete id="deleteHospitalPatientByPatientId" parameterType="Long">
+        delete from sys_hospital_patient where patient_id = #{patientId}
+    </delete>
+
+    <delete id="deleteHospitalPatientByPatientIds" parameterType="String">
+        delete from sys_hospital_patient where patient_id in 
+        <foreach item="patientId" collection="array" open="(" separator="," close=")">
+            #{patientId}
+        </foreach>
+    </delete>
+</mapper>
