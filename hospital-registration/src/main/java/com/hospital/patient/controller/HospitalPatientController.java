@@ -20,10 +20,11 @@ import com.hospital.patient.domain.HospitalPatient;
 import com.hospital.patient.service.IHospitalPatientService;
 import com.hospital.common.utils.poi.ExcelUtil;
 import com.hospital.common.core.page.TableDataInfo;
+import com.hospital.common.utils.SecurityUtils; // 新增：获取当前登录用户
 
 /**
  * 医院患者Controller
- * 
+ *
  * @author hjh
  * @date 2026-02-06
  */
@@ -34,9 +35,7 @@ public class HospitalPatientController extends BaseController
     @Autowired
     private IHospitalPatientService hospitalPatientService;
 
-    /**
-     * 查询医院患者列表
-     */
+    // ====================== 原有管理员接口（保留不变） ======================
     @PreAuthorize("@ss.hasPermi('patient:patient:list')")
     @GetMapping("/list")
     public TableDataInfo list(HospitalPatient hospitalPatient)
@@ -46,9 +45,6 @@ public class HospitalPatientController extends BaseController
         return getDataTable(list);
     }
 
-    /**
-     * 导出医院患者列表
-     */
     @PreAuthorize("@ss.hasPermi('patient:patient:export')")
     @Log(title = "医院患者", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
@@ -59,9 +55,6 @@ public class HospitalPatientController extends BaseController
         util.exportExcel(response, list, "医院患者数据");
     }
 
-    /**
-     * 获取医院患者详细信息
-     */
     @PreAuthorize("@ss.hasPermi('patient:patient:query')")
     @GetMapping(value = "/{patientId}")
     public AjaxResult getInfo(@PathVariable("patientId") Long patientId)
@@ -69,9 +62,6 @@ public class HospitalPatientController extends BaseController
         return success(hospitalPatientService.selectHospitalPatientByPatientId(patientId));
     }
 
-    /**
-     * 新增医院患者
-     */
     @PreAuthorize("@ss.hasPermi('patient:patient:add')")
     @Log(title = "医院患者", businessType = BusinessType.INSERT)
     @PostMapping
@@ -80,9 +70,6 @@ public class HospitalPatientController extends BaseController
         return toAjax(hospitalPatientService.insertHospitalPatient(hospitalPatient));
     }
 
-    /**
-     * 修改医院患者
-     */
     @PreAuthorize("@ss.hasPermi('patient:patient:edit')")
     @Log(title = "医院患者", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -91,14 +78,54 @@ public class HospitalPatientController extends BaseController
         return toAjax(hospitalPatientService.updateHospitalPatient(hospitalPatient));
     }
 
-    /**
-     * 删除医院患者
-     */
     @PreAuthorize("@ss.hasPermi('patient:patient:remove')")
     @Log(title = "医院患者", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{patientIds}")
+    @DeleteMapping("/{patientIds}")
     public AjaxResult remove(@PathVariable Long[] patientIds)
     {
         return toAjax(hospitalPatientService.deleteHospitalPatientByPatientIds(patientIds));
+    }
+
+    // ====================== 新增：患者自操作接口（无管理员权限） ======================
+    /**
+     * 患者查询自己的信息（无权限注解，仅能查自己）
+     */
+    @GetMapping("/myInfo")
+    public AjaxResult getMyInfo()
+    {
+        // 1. 获取当前登录用户ID（patient_id = user_id）
+        Long userId = SecurityUtils.getUserId();
+        // 2. 查询自己的患者信息
+        HospitalPatient patient = hospitalPatientService.selectHospitalPatientByPatientId(userId);
+        return success(patient);
+    }
+
+    /**
+     * 患者新增自己的信息（无权限注解，强制绑定当前用户ID）
+     */
+    @Log(title = "患者自填信息", businessType = BusinessType.INSERT)
+    @PostMapping("/myAdd")
+    public AjaxResult addMyInfo(@RequestBody HospitalPatient hospitalPatient)
+    {
+        // 1. 强制设置patientId为当前登录用户ID，防止篡改
+        Long userId = SecurityUtils.getUserId();
+        hospitalPatient.setPatientId(userId);
+        // 2. 新增信息
+        return toAjax(hospitalPatientService.insertHospitalPatient(hospitalPatient));
+    }
+
+    /**
+     * 患者修改自己的信息（无权限注解，仅能改自己）
+     */
+    @Log(title = "患者修改信息", businessType = BusinessType.UPDATE)
+    @PutMapping("/myEdit")
+    public AjaxResult editMyInfo(@RequestBody HospitalPatient hospitalPatient)
+    {
+        // 1. 获取当前登录用户ID
+        Long userId = SecurityUtils.getUserId();
+        // 2. 强制限定修改自己的信息（防止传参篡改patientId）
+        hospitalPatient.setPatientId(userId);
+        // 3. 修改信息
+        return toAjax(hospitalPatientService.updateHospitalPatient(hospitalPatient));
     }
 }

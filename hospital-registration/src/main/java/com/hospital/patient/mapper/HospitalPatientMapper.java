@@ -1,6 +1,7 @@
 package com.hospital.patient.mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import com.hospital.patient.domain.HospitalPatient;
 
 /**
@@ -58,4 +59,11 @@ public interface HospitalPatientMapper
      * @return 结果
      */
     public int deleteHospitalPatientByPatientIds(Long[] patientIds);
+
+    /**
+     * 批量查询患者信息
+     * @param patientIds 患者ID列表
+     * @return 患者列表
+     */
+    List<HospitalPatient> selectHospitalPatientByPatientIds(@Param("patientIds") List<Long> patientIds);
 }

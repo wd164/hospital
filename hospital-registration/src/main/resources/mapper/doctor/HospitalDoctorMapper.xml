@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hospital.doctor.mapper.HospitalDoctorMapper">
+    
+    <resultMap type="HospitalDoctor" id="HospitalDoctorResult">
+        <result property="doctorId"    column="doctor_id"    />
+        <result property="doctorName"    column="doctor_name"    />
+        <result property="doctorGender"    column="doctor_gender"    />
+        <result property="doctorTitle"    column="doctor_title"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="doctorPhone"    column="doctor_phone"    />
+        <result property="doctorIntro"    column="doctor_intro"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectHospitalDoctorVo">
+        select doctor_id, doctor_name, doctor_gender, doctor_title, dept_id, doctor_phone, doctor_intro, status, create_by, create_time, update_by, update_time, remark from sys_hospital_doctor
+    </sql>
+
+    <select id="selectHospitalDoctorList" parameterType="HospitalDoctor" resultMap="HospitalDoctorResult">
+        <include refid="selectHospitalDoctorVo"/>
+        <where>  
+            <if test="doctorName != null  and doctorName != ''"> and doctor_name like concat('%', #{doctorName}, '%')</if>
+            <if test="doctorGender != null  and doctorGender != ''"> and doctor_gender = #{doctorGender}</if>
+            <if test="doctorTitle != null  and doctorTitle != ''"> and doctor_title = #{doctorTitle}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="doctorPhone != null  and doctorPhone != ''"> and doctor_phone = #{doctorPhone}</if>
+            <if test="doctorIntro != null  and doctorIntro != ''"> and doctor_intro = #{doctorIntro}</if>
+        </where>
+    </select>
+    
+    <select id="selectHospitalDoctorByDoctorId" parameterType="Long" resultMap="HospitalDoctorResult">
+        <include refid="selectHospitalDoctorVo"/>
+        where doctor_id = #{doctorId}
+    </select>
+
+    <insert id="insertHospitalDoctor" parameterType="HospitalDoctor" useGeneratedKeys="true" keyProperty="doctorId">
+        insert into sys_hospital_doctor
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="doctorId != null">doctor_id,</if>
+            <if test="doctorName != null and doctorName != ''">doctor_name,</if>
+            <if test="doctorGender != null and doctorGender != ''">doctor_gender,</if>
+            <if test="doctorTitle != null">doctor_title,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="doctorPhone != null">doctor_phone,</if>
+            <if test="doctorIntro != null">doctor_intro,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="doctorId != null">#{doctorId},</if>
+            <if test="doctorName != null and doctorName != ''">#{doctorName},</if>
+            <if test="doctorGender != null and doctorGender != ''">#{doctorGender},</if>
+            <if test="doctorTitle != null">#{doctorTitle},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="doctorPhone != null">#{doctorPhone},</if>
+            <if test="doctorIntro != null">#{doctorIntro},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateHospitalDoctor" parameterType="HospitalDoctor">
+        update sys_hospital_doctor
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="doctorName != null and doctorName != ''">doctor_name = #{doctorName},</if>
+            <if test="doctorGender != null and doctorGender != ''">doctor_gender = #{doctorGender},</if>
+            <if test="doctorTitle != null">doctor_title = #{doctorTitle},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="doctorPhone != null">doctor_phone = #{doctorPhone},</if>
+            <if test="doctorIntro != null">doctor_intro = #{doctorIntro},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where doctor_id = #{doctorId}
+    </update>
+
+    <delete id="deleteHospitalDoctorByDoctorId" parameterType="Long">
+        delete from sys_hospital_doctor where doctor_id = #{doctorId}
+    </delete>
+
+    <delete id="deleteHospitalDoctorByDoctorIds" parameterType="String">
+        delete from sys_hospital_doctor where doctor_id in 
+        <foreach item="doctorId" collection="array" open="(" separator="," close=")">
+            #{doctorId}
+        </foreach>
+    </delete>
+</mapper>

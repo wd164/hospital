@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hospital.reg.mapper.HospitalRegMapper">
+    
+    <resultMap type="HospitalReg" id="HospitalRegResult">
+        <result property="regId"    column="reg_id"    />
+        <result property="patientId"    column="patient_id"    />
+        <result property="doctorId"    column="doctor_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="regTime"    column="reg_time"    />
+        <result property="appointmentTime"    column="appointment_time"    />
+        <result property="regFee"    column="reg_fee"    />
+        <result property="regStatus"    column="reg_status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectHospitalRegVo">
+        select reg_id, patient_id, doctor_id, dept_id, reg_time, appointment_time, reg_fee, reg_status, create_by, create_time, update_by, update_time, remark from sys_hospital_reg
+    </sql>
+
+    <select id="selectHospitalRegList" parameterType="HospitalReg" resultMap="HospitalRegResult">
+        <include refid="selectHospitalRegVo"/>
+        <where>  
+            <if test="patientId != null "> and patient_id = #{patientId}</if>
+            <if test="doctorId != null "> and doctor_id = #{doctorId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="regTime != null "> and reg_time = #{regTime}</if>
+            <if test="appointmentTime != null "> and appointment_time = #{appointmentTime}</if>
+            <if test="regFee != null "> and reg_fee = #{regFee}</if>
+        </where>
+    </select>
+    
+    <select id="selectHospitalRegByRegId" parameterType="Long" resultMap="HospitalRegResult">
+        <include refid="selectHospitalRegVo"/>
+        where reg_id = #{regId}
+    </select>
+
+    <insert id="insertHospitalReg" parameterType="HospitalReg" useGeneratedKeys="true" keyProperty="regId">
+        insert into sys_hospital_reg
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="patientId != null">patient_id,</if>
+            <if test="doctorId != null">doctor_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="regTime != null">reg_time,</if>
+            <if test="appointmentTime != null">appointment_time,</if>
+            <if test="regFee != null">reg_fee,</if>
+            <if test="regStatus != null">reg_status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="patientId != null">#{patientId},</if>
+            <if test="doctorId != null">#{doctorId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="regTime != null">#{regTime},</if>
+            <if test="appointmentTime != null">#{appointmentTime},</if>
+            <if test="regFee != null">#{regFee},</if>
+            <if test="regStatus != null">#{regStatus},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateHospitalReg" parameterType="HospitalReg">
+        update sys_hospital_reg
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="patientId != null">patient_id = #{patientId},</if>
+            <if test="doctorId != null">doctor_id = #{doctorId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="regTime != null">reg_time = #{regTime},</if>
+            <if test="appointmentTime != null">appointment_time = #{appointmentTime},</if>
+            <if test="regFee != null">reg_fee = #{regFee},</if>
+            <if test="regStatus != null">reg_status = #{regStatus},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where reg_id = #{regId}
+    </update>
+
+    <delete id="deleteHospitalRegByRegId" parameterType="Long">
+        delete from sys_hospital_reg where reg_id = #{regId}
+    </delete>
+
+    <delete id="deleteHospitalRegByRegIds" parameterType="String">
+        delete from sys_hospital_reg where reg_id in 
+        <foreach item="regId" collection="array" open="(" separator="," close=")">
+            #{regId}
+        </foreach>
+    </delete>
+</mapper>

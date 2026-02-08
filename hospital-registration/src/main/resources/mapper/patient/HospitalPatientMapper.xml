@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hospital.patient.mapper.HospitalPatientMapper">
-    
+
     <resultMap type="HospitalPatient" id="HospitalPatientResult">
         <result property="patientId"    column="patient_id"    />
         <result property="patientName"    column="patient_name"    />
@@ -26,7 +26,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectHospitalPatientList" parameterType="HospitalPatient" resultMap="HospitalPatientResult">
         <include refid="selectHospitalPatientVo"/>
-        <where>  
+        <where>
             <if test="patientName != null  and patientName != ''"> and patient_name like concat('%', #{patientName}, '%')</if>
             <if test="patientGender != null  and patientGender != ''"> and patient_gender = #{patientGender}</if>
             <if test="params.beginPatientAge != null and params.beginPatientAge != '' and params.endPatientAge != null and params.endPatientAge != ''"> and patient_age between #{params.beginPatientAge} and #{params.endPatientAge}</if>
@@ -35,15 +35,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="patientAddress != null  and patientAddress != ''"> and patient_address = #{patientAddress}</if>
         </where>
     </select>
-    
+
     <select id="selectHospitalPatientByPatientId" parameterType="Long" resultMap="HospitalPatientResult">
         <include refid="selectHospitalPatientVo"/>
         where patient_id = #{patientId}
     </select>
 
-    <insert id="insertHospitalPatient" parameterType="HospitalPatient" useGeneratedKeys="true" keyProperty="patientId">
+    <!-- 批量查询患者信息 -->
+    <select id="selectHospitalPatientByPatientIds" parameterType="java.util.List" resultMap="HospitalPatientResult">
+        select patient_id, patient_name, patient_gender, patient_age, patient_idcard, patient_phone, patient_address, remark, create_time
+        from sys_hospital_patient
+        where patient_id in
+        <foreach item="patientId" collection="patientIds" open="(" separator="," close=")">
+            #{patientId}
+        </foreach>
+    </select>
+
+    <!-- 核心修改：1. 删掉 useGeneratedKeys  2. 补充 patientId 参数 -->
+    <insert id="insertHospitalPatient" parameterType="HospitalPatient">
         insert into sys_hospital_patient
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <!-- 保留 patient_id 字段判断（Long类型不用判空字符串） -->
+            <if test="patientId != null">patient_id,</if>
             <if test="patientName != null and patientName != ''">patient_name,</if>
             <if test="patientGender != null and patientGender != ''">patient_gender,</if>
             <if test="patientAge != null">patient_age,</if>
@@ -56,8 +69,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="remark != null">remark,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <!-- ========== 新增：必须加 patientId 参数 ========== -->
+            <if test="patientId != null">#{patientId},</if>
             <if test="patientName != null and patientName != ''">#{patientName},</if>
             <if test="patientGender != null and patientGender != ''">#{patientGender},</if>
             <if test="patientAge != null">#{patientAge},</if>
@@ -70,7 +85,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="remark != null">#{remark},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateHospitalPatient" parameterType="HospitalPatient">
@@ -97,7 +112,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteHospitalPatientByPatientIds" parameterType="String">
-        delete from sys_hospital_patient where patient_id in 
+        delete from sys_hospital_patient where patient_id in
         <foreach item="patientId" collection="array" open="(" separator="," close=")">
             #{patientId}
         </foreach>
